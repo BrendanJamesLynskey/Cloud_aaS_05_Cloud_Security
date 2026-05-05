@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Security in Depth — IAM, Secrets, Network, Compliance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+<style>
+  :root{--amber:#f5a623;--green:#4ecb8d;--purple:#a78bfa;--blue:#60a5fa;--red:#f87171;
+    --bg:#0a0a0f;--bg2:#10101a;--bg3:#181824;--border:#2a2a3a;--text:#e8e8f0;--muted:#8888a8;}
+  .reveal-viewport{background:var(--bg);} .reveal .slides section{background:transparent;}
+  .reveal{font-family:'DM Sans',sans-serif;color:var(--text);}
+  .reveal h1,.reveal h2,.reveal h3{font-family:'Playfair Display',serif;font-weight:700;}
+  .reveal h1{font-size:1.6em;color:var(--amber);line-height:1.1;}
+  .reveal h2{font-size:1.1em;color:var(--amber);margin-bottom:.2em;}
+  .reveal h3{font-size:.78em;color:var(--green);margin-bottom:.15em;}
+  .reveal p{font-size:.56em;line-height:1.45;color:var(--text);}
+  .reveal li{font-size:.54em;line-height:1.45;margin-bottom:.1em;}
+  .reveal code{font-family:'JetBrains Mono',monospace;font-size:.72em;}
+  .reveal pre{box-shadow:none;background:var(--bg3);border:1px solid var(--border);
+    border-radius:6px;padding:.3em .5em;margin:.25em 0;}
+  .reveal pre code{font-size:.52em;line-height:1.35;background:transparent;color:#cdd6f4;}
+  .slide-hdr{display:flex;align-items:center;gap:.4em;border-bottom:1px solid var(--border);
+    padding-bottom:.2em;margin-bottom:.3em;}
+  .slide-hdr .tag{font-family:'JetBrains Mono',monospace;font-size:.42em;font-weight:500;
+    color:var(--bg);background:var(--amber);padding:.1em .4em;border-radius:3px;letter-spacing:.04em;}
+  .slide-hdr h2{margin:0;font-size:.95em;}
+  .cols{display:grid;gap:.5em;} .cols-2{grid-template-columns:1fr 1fr;}
+  .cols-3{grid-template-columns:1fr 1fr 1fr;} .cols-4{grid-template-columns:1fr 1fr 1fr 1fr;}
+  .cols-6040{grid-template-columns:6fr 4fr;} .cols-4060{grid-template-columns:4fr 6fr;}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:.35em .6em;}
+  .card.amber{border-left:3px solid var(--amber);} .card.green{border-left:3px solid var(--green);}
+  .card.purple{border-left:3px solid var(--purple);} .card.blue{border-left:3px solid var(--blue);}
+  .card.red{border-left:3px solid var(--red);}
+  .card h3{font-size:.64em;margin:0 0 .12em;} .card p{font-size:.52em;margin:0;color:#b8b8d0;}
+  .card ul{margin:0;padding-left:1em;} .card li{font-size:.52em;color:#b8b8d0;margin-bottom:.02em;}
+  .reveal table{width:100%;border-collapse:collapse;font-size:.5em;}
+  .reveal table th{background:var(--bg3);color:var(--amber);font-weight:600;
+    padding:.2em .4em;border:1px solid var(--border);text-align:left;}
+  .reveal table td{padding:.18em .4em;border:1px solid var(--border);color:#ccc;}
+  .reveal table tr:nth-child(even) td{background:#0e0e18;}
+  .a{color:var(--amber);font-weight:600;} .g{color:var(--green);font-weight:600;}
+  .p{color:var(--purple);font-weight:600;} .b{color:var(--blue);font-weight:600;}
+  .r{color:var(--red);font-weight:600;} .mono{font-family:'JetBrains Mono',monospace;}
+  svg.diagram{display:block;margin:0 auto;overflow:visible;}
+  .pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.44em;
+    padding:.08em .4em;border-radius:99px;border:1px solid;margin:0 .08em;}
+  .pill.amber{color:var(--amber);border-color:var(--amber);}
+  .pill.green{color:var(--green);border-color:var(--green);}
+  .pill.purple{color:var(--purple);border-color:var(--purple);}
+  .pill.blue{color:var(--blue);border-color:var(--blue);}
+  .reveal .slide-footer{display:none;}
+  .title-slide h1{font-size:1.8em;}
+  .title-slide .subtitle{font-size:.7em;color:var(--green);font-family:'DM Sans',sans-serif;
+    font-weight:300;letter-spacing:.04em;margin:.3em 0 .6em;}
+  .title-slide .meta{font-size:.48em;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .ss-row{display:flex;gap:.25em;align-items:center;margin:.1em 0;font-size:.55em;
+    font-family:'JetBrains Mono',monospace;flex-wrap:wrap;}
+  .ss-node{padding:.2em .55em;border-radius:5px;font-size:.9em;
+    background:var(--bg3);border:1px solid var(--border);color:var(--text);}
+  .ss-node.active{background:#1a2a1a;border-color:var(--green);color:var(--green);}
+  .ss-node.done{background:#1a1a2a;border-color:var(--purple);color:var(--purple);}
+  .ss-arrow{color:var(--amber);} .ss-label{font-size:.8em;color:var(--muted);margin-left:.3em;}
+  .reveal ul,.reveal ol{margin:.15em 0 .15em 1em;}
+  .reveal .slides>section{display:flex!important;flex-direction:column!important;
+    overflow-y:auto!important;align-items:stretch!important;justify-content:flex-start!important;}
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+
+<!-- 01 — TITLE -->
+<section class="title-slide" data-background-color="#0a0a0f">
+  <div style="text-align:left; max-width:820px; margin:0 auto; padding: 1em 0;">
+    <div style="font-family:'JetBrains Mono',monospace; font-size:.5em; color:var(--muted); margin-bottom:.4em; letter-spacing:.1em;">
+      CLOUD SERVICE MODELS &middot; PART 5 OF 6
+    </div>
+    <h1>Cloud Security<br>in Depth</h1>
+    <div class="subtitle">Identity · secrets · network · encryption · compliance · supply chain</div>
+    <div style="width:60px; height:3px; background:var(--amber); margin-bottom:1.4em;"></div>
+    <div style="display:flex; gap:.4em; flex-wrap:wrap; margin-bottom:1em;">
+      <span class="pill amber">IAM · STS</span>
+      <span class="pill green">KMS · HSM · Vault</span>
+      <span class="pill purple">PrivateLink · mTLS</span>
+      <span class="pill blue">Zero Trust</span>
+      <span class="pill amber">SBOM · SLSA · Sigstore</span>
+    </div>
+    <div class="ss-row">
+      <span class="ss-node active">🔐 Identity</span>
+      <span class="ss-arrow">→</span>
+      <span class="ss-node active">🗝 Secrets</span>
+      <span class="ss-arrow">→</span>
+      <span class="ss-node active">🌐 Network</span>
+      <span class="ss-arrow">→</span>
+      <span class="ss-node active">🛡 Encrypt</span>
+      <span class="ss-arrow">→</span>
+      <span class="ss-node done">📜 Audit</span>
+    </div>
+    <p style="max-width:640px; color:#a0a0c0; font-size:.56em; line-height:1.5; margin-top:1em;">
+      The cross-cutting security disciplines for *aaS — what the cloud gives you, what it doesn't, and how the past decade's incidents shape the controls you actually need.
+    </p>
+    <div class="meta" style="margin-top:1.4em;">
+      Identity &nbsp;·&nbsp; Secrets &nbsp;·&nbsp; Network &nbsp;·&nbsp; Compliance &nbsp;·&nbsp; Detect
+    </div>
+  </div>
+</section>
+
+
+<!-- 02 — TOPICS -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">01</span><h2>Topics</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3 class="a">Identity &amp; access</h3>
+        <ul>
+          <li>The shared-responsibility model in detail</li>
+          <li>IAM — users, roles, policies, STS</li>
+          <li>Federation — SSO + workload identity</li>
+          <li>Least-privilege patterns &amp; permission boundaries</li>
+        </ul>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">Secrets &amp; encryption</h3>
+        <ul>
+          <li>KMS / HSM / Secrets Manager / Vault</li>
+          <li>Encryption at rest / in transit / in use</li>
+          <li>Confidential compute (Nitro Enclaves, AMD SEV-SNP)</li>
+          <li>BYOK / HYOK — bring or hold your own key</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">Network &amp; supply chain</h3>
+        <ul>
+          <li>Zero-trust networking</li>
+          <li>PrivateLink &amp; service mesh</li>
+          <li>Supply chain — SBOM, SLSA, Sigstore</li>
+          <li>Container &amp; image security</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">Compliance &amp; ops</h3>
+        <ul>
+          <li>SOC 2 / ISO / HIPAA / GDPR / PCI / FedRAMP</li>
+          <li>CSPM / CNAPP / CWPP</li>
+          <li>SIEM, detection &amp; response</li>
+          <li>Real incidents — what they tell us</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 03 — SHARED RESPONSIBILITY DEEP DIVE -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">02</span><h2>Shared Responsibility — In Detail</h2></div>
+  <p>The cloud secures the <em>infrastructure</em>; you secure <em>everything you run on it</em>. Where the line falls depends on the *aaS layer (deck 01) — but in every model, four things are always yours.</p>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card amber">
+        <h3 class="a">Always yours, every layer</h3>
+        <ol style="padding-left:1.2em;">
+          <li><span class="g">Your data</span> — what you upload, encryption keys you choose</li>
+          <li><span class="g">Your identities</span> — users, roles, who has what</li>
+          <li><span class="g">Your client config</span> — secrets, OAuth apps, API keys</li>
+          <li><span class="g">Your access policies</span> — IAM, sharing controls, public flags</li>
+        </ol>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">Always theirs, every layer</h3>
+        <ol style="padding-left:1.2em;">
+          <li>Physical security of data centres</li>
+          <li>Hardware integrity, hypervisor patching</li>
+          <li>Substrate network &amp; cross-region transit</li>
+          <li>Availability of the underlying API</li>
+          <li>The compliance reports themselves (SOC 2 Type II, ISO 27001 certificates)</li>
+        </ol>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">A worked example — S3 bucket</h3>
+        <ul>
+          <li><span class="g">AWS</span> ensures: hardware encryption, no-cross-tenant access at the storage layer, durability (11×9), TLS termination</li>
+          <li><span class="r">You</span> must: bucket policy, public-access block, encryption-at-rest, versioning + Object Lock, access logging, principal-based access — <em>and notice</em> when something is misconfigured</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">Where most breaches happen</h3>
+        <p>Cloud Security Alliance &amp; Verizon DBIR are consistent year after year: <span class="r">~80% of cloud incidents</span> are customer-side misconfiguration — public storage, lax IAM, leaked keys. Provider-side breaches are real but rare.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Read the contract</h3>
+        <p>For each managed service, find the actual shared-responsibility doc: AWS publishes one per service, GCP has the "shared fate" model, Azure has the SaaS/PaaS/IaaS matrix. They differ.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 04 — IAM CORE -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">03</span><h2>IAM — Identity, Roles, Policies, STS</h2></div>
+
+  <svg class="diagram" viewBox="0 0 1000 240" width="940" height="240">
+    <defs><marker id="m04" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#888"/></marker></defs>
+
+    <rect x="20"  y="60" width="200" height="60" rx="6" fill="#1a1a2a" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="120" y="85" text-anchor="middle" fill="#60a5fa" font-family="Playfair Display,serif" font-size="14" font-weight="700">Principal</text>
+    <text x="120" y="105" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">user · role · workload</text>
+
+    <rect x="280" y="60" width="200" height="60" rx="6" fill="#1a1a2a" stroke="#f5a623" stroke-width="1.5"/>
+    <text x="380" y="85" text-anchor="middle" fill="#f5a623" font-family="Playfair Display,serif" font-size="14" font-weight="700">STS</text>
+    <text x="380" y="105" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">issues short-lived credentials</text>
+
+    <rect x="540" y="60" width="200" height="60" rx="6" fill="#1a1a2a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="640" y="85" text-anchor="middle" fill="#a78bfa" font-family="Playfair Display,serif" font-size="14" font-weight="700">Policy evaluator</text>
+    <text x="640" y="105" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">SCP · resource · identity policies</text>
+
+    <rect x="800" y="60" width="180" height="60" rx="6" fill="#1a1a2a" stroke="#4ecb8d" stroke-width="1.5"/>
+    <text x="890" y="85" text-anchor="middle" fill="#4ecb8d" font-family="Playfair Display,serif" font-size="14" font-weight="700">Resource</text>
+    <text x="890" y="105" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">S3 / RDS / Bedrock / …</text>
+
+    <line x1="220" y1="90" x2="280" y2="90" stroke="#888" stroke-width="1.2" marker-end="url(#m04)"/>
+    <text x="250" y="80" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">AssumeRole</text>
+
+    <line x1="480" y1="90" x2="540" y2="90" stroke="#888" stroke-width="1.2" marker-end="url(#m04)"/>
+    <text x="510" y="80" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">creds</text>
+
+    <line x1="740" y1="90" x2="800" y2="90" stroke="#888" stroke-width="1.2" marker-end="url(#m04)"/>
+    <text x="770" y="80" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">Allow / Deny</text>
+
+    <text x="500" y="165" text-anchor="middle" fill="#888" font-family="DM Sans,sans-serif" font-size="11">Every API call is an authenticated, authorised, logged transaction. The four IAM controls — SCP, identity, resource, permission boundary — combine in a deny-wins evaluator.</text>
+    <text x="500" y="195" text-anchor="middle" fill="#a0a0c0" font-family="JetBrains Mono,monospace" font-size="10">explicit deny → deny | explicit allow → check boundaries → allow | otherwise → deny</text>
+  </svg>
+
+  <div class="cols cols-3" style="margin-top:0.2em;">
+    <div class="card amber">
+      <h3 class="a">Identity policies</h3>
+      <p>Attached to a principal — "what can this user/role do?". Most common kind.</p>
+    </div>
+    <div class="card green">
+      <h3 class="g">Resource policies</h3>
+      <p>Attached to a resource — "who can use this S3 bucket / KMS key / SQS queue?". Govern cross-account access.</p>
+    </div>
+    <div class="card purple">
+      <h3 class="p">SCPs &amp; boundaries</h3>
+      <p>Org-level guardrails — "even an admin in account X can't disable CloudTrail". The compliance backstop.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- 05 — STS / FEDERATION -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">04</span><h2>STS &amp; Federation — No Long-Lived Keys</h2></div>
+  <p>Long-lived <code>AKIA…</code>/<code>JSON-key</code>/<code>service-principal-secret</code> credentials are the thing leaked into GitHub at 03:00 every day. Replace them everywhere with short-lived tokens minted on demand.</p>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card amber">
+        <h3 class="a">For humans</h3>
+        <ul>
+          <li><span class="g">SSO via IdP</span> — Okta, Entra, Google Workspace, JumpCloud → cloud federated login</li>
+          <li><span class="g">AWS IAM Identity Center</span> (was SSO) / <span class="g">GCP Cloud Identity</span> / <span class="g">Azure AD</span></li>
+          <li>SSO issues a short-lived role assumption (1–12 h)</li>
+          <li>No IAM users — ever</li>
+        </ul>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">For workloads (in-cloud)</h3>
+        <ul>
+          <li><span class="a">EC2 Instance Profile</span> — VM gets a role via metadata service (IMDSv2)</li>
+          <li><span class="a">EKS Pod Identity</span> (2023) / <span class="a">IRSA</span> — pods get role via service account</li>
+          <li><span class="a">GKE Workload Identity</span> — service account → IAM</li>
+          <li><span class="a">Azure Managed Identity</span> — VM/container/app gets identity automatically</li>
+          <li><span class="a">Cloud Run / App Service service accounts</span> — same idea</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">For CI/CD &amp; external workloads</h3>
+        <ul>
+          <li><span class="a">OIDC federation</span> — GitHub Actions, GitLab CI, Buildkite, CircleCI all sign OIDC tokens; the cloud trusts those tokens via a configured issuer URL</li>
+          <li>No long-lived secret in GitHub Actions — the runner exchanges its OIDC token for STS creds</li>
+          <li>Same pattern for K8s clusters running outside the cloud — federate via OIDC issuer</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">A GitHub Actions OIDC role-trust</h3>
+<pre><code>{
+  "Effect": "Allow",
+  "Principal": { "Federated": "arn:aws:iam::...:oidc-provider/token.actions.githubusercontent.com" },
+  "Action": "sts:AssumeRoleWithWebIdentity",
+  "Condition": {
+    "StringEquals": {
+      "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+      "token.actions.githubusercontent.com:sub": "repo:acme/api:ref:refs/heads/main"
+    }
+  }
+}</code></pre>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">The static-key tax</h3>
+        <p>Every long-lived key in your org has a non-trivial probability of being leaked this year. Audit-as-you-go: <code>aws iam list-access-keys</code>, <code>gcloud iam service-accounts keys list</code>, weekly cron, alarm on anything &gt; 30 days old.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 06 — LEAST PRIVILEGE -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">05</span><h2>Least Privilege — In Practice</h2></div>
+  <p>"Least privilege" is the principle that every identity gets <em>only</em> the permissions it needs. Easy to say; in real cloud accounts most policies have grown to <code>"*:*"</code> by Tuesday.</p>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card amber">
+        <h3 class="a">Iterative tightening</h3>
+        <ol style="padding-left:1.2em;">
+          <li>Start coarse (managed policies are fine for week 1)</li>
+          <li>Use <span class="g">IAM Access Analyser</span> / <span class="g">Cloud Asset Inventory</span> / <span class="g">Microsoft PIM</span> to surface unused permissions</li>
+          <li>Generate scoped policies from observed CloudTrail / Cloud Audit Logs</li>
+          <li>Add <span class="g">conditions</span> — region, IP, MFA, time of day, principal tag</li>
+          <li>Revisit quarterly; permissions decay</li>
+        </ol>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">Conditions that punch above their weight</h3>
+<pre><code>"Condition": {
+  "Bool":  {"aws:MultiFactorAuthPresent": "true"},
+  "StringEquals": {"aws:RequestedRegion": ["eu-west-2","us-east-1"]},
+  "IpAddress": {"aws:SourceIp": ["203.0.113.0/24"]},
+  "ArnEquals": {"aws:PrincipalTag/team": "data"},
+  "DateGreaterThan": {"aws:CurrentTime": "2026-01-01T00:00Z"}
+}</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">Patterns to adopt</h3>
+        <ul>
+          <li><span class="a">Permission boundaries</span> — cap any role's permissions; useful for delegating role creation safely</li>
+          <li><span class="a">SCPs</span> at the org level — "no resource may be created in unapproved regions"</li>
+          <li><span class="a">Tag-based access</span> — a user can act only on resources tagged with their team</li>
+          <li><span class="a">Just-in-time access</span> — Teleport / OpenZiti / Tailscale + role-assumption brokers; "request, get for 4 hours"</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">When auto-tools help</h3>
+        <ul>
+          <li>AWS Access Analyser policy generation — emits a draft policy from observed activity</li>
+          <li>Dispel / Apono / SailPoint — JIT access platforms</li>
+          <li>Wiz / Orca / Lacework / Prisma — CSPM, surface "this role used 3 of its 240 permissions"</li>
+        </ul>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">"Admin for now" policies</h3>
+        <p>The most common security debt. Time-box them: every <code>"Action":"*"</code> policy gets a tag with an expiry date; CI fails the deploy after.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 07 — SECRETS -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">06</span><h2>Secrets — KMS / HSM / Secrets Manager / Vault</h2></div>
+
+  <table style="margin-top:.3em;">
+    <thead><tr><th>Tool</th><th>Class</th><th>What it stores</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><span class="a">AWS KMS / GCP KMS / Azure Key Vault keys</span></td><td>Key management</td><td>Keys (you encrypt data with the key it returns)</td><td>FIPS 140-2 L3 with HSM tier; envelope encryption is the pattern</td></tr>
+      <tr><td><span class="a">AWS Secrets Manager / Google Secret Manager / Azure Key Vault secrets</span></td><td>Secret store</td><td>Strings, JSON blobs, rotated</td><td>Versioned, IAM-gated, integrates with Lambda for rotation</td></tr>
+      <tr><td><span class="a">SSM Parameter Store</span></td><td>Config + secrets</td><td>Strings (KMS-encrypted "SecureString")</td><td>Cheaper than Secrets Manager for low-rotation use</td></tr>
+      <tr><td><span class="a">HashiCorp Vault</span></td><td>Secret store + dynamic creds</td><td>Anything; <em>generates</em> short-lived DB / cloud creds</td><td>The OSS standard; Boundary for SSH, Vault Enterprise for HSM</td></tr>
+      <tr><td><span class="a">Doppler / 1Password / Infisical / Akeyless</span></td><td>SaaS secret manager</td><td>Application secrets</td><td>Developer-friendly, env-vars at deploy time</td></tr>
+      <tr><td><span class="a">CloudHSM / Azure Dedicated HSM</span></td><td>HSM</td><td>Keys for compliance (FIPS 140-2 L3, single-tenant)</td><td>~$1/hr; only when an auditor demands it</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cols cols-2" style="margin-top:0.3em;">
+    <div class="card amber">
+      <h3 class="a">Envelope encryption</h3>
+<pre><code># 1. App generates a random data-encryption key (DEK)
+# 2. Encrypts data with DEK (fast, AES-256-GCM)
+# 3. Asks KMS to encrypt the DEK with a master key (KEK)
+# 4. Stores: ciphertext + encrypted-DEK
+# 5. To decrypt: ask KMS to decrypt DEK; use DEK to decrypt data
+
+ciphertext  = AES-GCM(plaintext, DEK)
+encrypted_DEK = KMS.Encrypt(DEK, KeyId="...master...")
+store(ciphertext, encrypted_DEK)</code></pre>
+    </div>
+    <div class="card green">
+      <h3 class="g">BYOK / HYOK</h3>
+      <ul>
+        <li><span class="a">BYOK</span> — Bring Your Own Key. Customer imports key material into the cloud KMS. Common in regulated SaaS.</li>
+        <li><span class="a">HYOK</span> — Hold Your Own Key. Customer keeps the master key in their HSM; decryption requires their HSM. Stronger; harder to operate.</li>
+        <li><span class="a">External Key Stores</span> — AWS XKS, GCP EKM. The cloud calls back to <em>your</em> HSM on every cryptographic operation.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- 08 — ENCRYPTION -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">07</span><h2>Encryption — At Rest, In Transit, In Use</h2></div>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card amber">
+        <h3 class="a">At rest — table-stakes</h3>
+        <ul>
+          <li>AWS: SSE-S3 (default), SSE-KMS (your CMK), SSE-C (you supply key)</li>
+          <li>GCP: Google-managed, customer-managed (CMEK), customer-supplied (CSEK)</li>
+          <li>Azure: Microsoft-managed, customer-managed</li>
+          <li>EBS / Persistent Disks / Managed Disks — encrypted by default in 2024+ accounts</li>
+          <li>RDS / Cloud SQL / Cosmos — encrypted at rest, key choice yours</li>
+        </ul>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">In transit</h3>
+        <ul>
+          <li>TLS 1.2+ everywhere; TLS 1.3 default in modern stacks</li>
+          <li>Cloud-native LBs handle ACM / GMC / Azure cert provisioning</li>
+          <li>Internal service-to-service: <span class="a">mTLS</span> via service mesh (Linkerd, Istio, Consul) or sidecar (Envoy)</li>
+          <li>Private connections (Direct Connect, ExpressRoute) <em>are not encrypted</em> by default — use IPsec or MACsec</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">In use — confidential compute</h3>
+        <ul>
+          <li>Encrypts memory; the cloud operator can't read RAM contents</li>
+          <li><span class="a">AWS Nitro Enclaves</span> — isolated VMs, no SSH, no persistent storage; for KMS-key-handling and PII processing</li>
+          <li><span class="a">AMD SEV-SNP</span> — encrypted VMs (AWS, GCP, Azure)</li>
+          <li><span class="a">Intel TDX</span> — Trust Domain Extensions, follow-up to SGX</li>
+          <li><span class="a">Confidential GPUs</span> (Hopper H100, Blackwell B100) — for AIaaS / Bedrock confidential inference</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">Practical hierarchy</h3>
+        <ol style="padding-left:1.2em;">
+          <li>Default-encrypt everything at rest with provider-managed keys (free)</li>
+          <li>Move sensitive data to <em>customer-managed keys</em> (CMK) — get rotation, audit, revoke</li>
+          <li>For regulated tenants, offer BYOK with their CMK</li>
+          <li>For top-tier compliance / IP, evaluate HYOK / XKS / confidential compute — small fraction of workloads</li>
+        </ol>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Field-level encryption is its own problem</h3>
+        <p>Database-level encryption protects against backup theft. Field-level (encrypt SSN before insert) protects against full DB compromise — but breaks SQL operators. Tokenisation (Vault Transform, Privacera, Skyflow) is usually the better answer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 09 — NETWORK SECURITY -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">08</span><h2>Network Security — Beyond the VPC</h2></div>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card amber">
+        <h3 class="a">East-west — service-to-service</h3>
+        <ul>
+          <li><span class="g">Service mesh</span> — Istio, Linkerd, Consul Connect, Cilium-based mesh; mTLS for free, traffic policy as code</li>
+          <li><span class="g">Sidecarless mesh</span> — eBPF-based (Cilium, Istio Ambient) — less overhead, no per-pod sidecar</li>
+          <li><span class="g">SPIFFE / SPIRE</span> — workload identity that <em>predates</em> the cloud's native ones; becomes the lingua franca across providers</li>
+        </ul>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">North-south — at the edge</h3>
+        <ul>
+          <li><span class="a">WAF</span> — AWS WAF, Cloudflare WAF, GCP Cloud Armor, Azure Front Door — bot, OWASP, custom rules</li>
+          <li><span class="a">DDoS</span> — Cloudflare default, AWS Shield Advanced, Azure DDoS Protection</li>
+          <li><span class="a">Anti-CSRF / origin-bound headers</span> at the LB</li>
+          <li><span class="a">Bot management</span> — separate market: PerimeterX/HUMAN, DataDome, hCaptcha Enterprise</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">PrivateLink &amp; service exposure</h3>
+        <ul>
+          <li>You expose <em>one service</em> to a customer's VPC, not the whole VPC</li>
+          <li>No NAT, no peering, no overlapping CIDRs</li>
+          <li>Single-tenant SaaS uses this to give enterprise customers a private DNS endpoint into your service</li>
+          <li>Cross-cloud: AWS PrivateLink, GCP Private Service Connect, Azure Private Link — same idea, slightly different APIs</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">Egress lockdown</h3>
+        <ul>
+          <li><span class="a">Restrictive egress rules</span> — workloads that don't need internet shouldn't have it</li>
+          <li><span class="a">Egress proxies</span> — Squid / NGINX / Cilium Network Policy + DNS filter to allow-list domains</li>
+          <li><span class="a">VPC endpoints</span> for AWS APIs — calls don't traverse the internet</li>
+          <li>Why: stops data exfiltration via opportunistic compromised library</li>
+        </ul>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">DNS leaks</h3>
+        <p>You can lock down IPs perfectly, then resolve <code>evil.example</code> through the cloud's DNS resolver. Use Route 53 Resolver query logs / Cloud DNS audit / Azure DNS analytics.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 10 — ZERO TRUST -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">09</span><h2>Zero Trust — The Replacement for the VPN</h2></div>
+  <p>"Never trust, always verify." Replaces the corporate VPN as the only thing between trusted users and crown-jewel data.</p>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card amber">
+        <h3 class="a">Five tenets (NIST 800-207)</h3>
+        <ol style="padding-left:1.2em;">
+          <li>Every resource is treated as untrusted by default</li>
+          <li>Authenticate &amp; authorise <em>every</em> request, every time</li>
+          <li>Use device posture (managed laptop, MDM, EDR running) as a factor</li>
+          <li>Decisions are dynamic — recalculate as context changes</li>
+          <li>Log everything; analyse continuously</li>
+        </ol>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">What replaces the VPN</h3>
+        <ul>
+          <li><span class="a">BeyondCorp</span> (Google) — the original; published 2014</li>
+          <li><span class="a">Cloudflare Zero Trust</span> / Access — broker between user and HTTP/SSH/RDP services</li>
+          <li><span class="a">Tailscale</span> — WireGuard-based mesh + IdP-driven ACLs</li>
+          <li><span class="a">Twingate</span> · <span class="a">Pomerium</span> · <span class="a">Teleport</span> — focused on internal app access</li>
+          <li><span class="a">AWS Verified Access</span> · <span class="a">Azure Entra Private Access</span></li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">Identity-aware proxy pattern</h3>
+        <ul>
+          <li>Every internal app sits behind an IAP (Identity-Aware Proxy)</li>
+          <li>The IAP sees: user identity, device posture, location, time, threat-intel signals</li>
+          <li>It allows / denies / steps-up (MFA) per request</li>
+          <li>App receives a signed header with verified identity</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">Bastion / break-glass access</h3>
+        <ul>
+          <li><span class="a">AWS SSM Session Manager</span> — SSH without a public IP, all logged</li>
+          <li><span class="a">GCP IAP TCP forwarding</span> — same, via IAP</li>
+          <li><span class="a">Teleport</span> — multi-cloud, with session recording</li>
+          <li>Every break-glass action: ticketed, time-bound, audited, alerted</li>
+        </ul>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">VPNs are still the #1 ransomware vector</h3>
+        <p>FortiOS, Pulse, Cisco ASA, Ivanti — every year a new pre-auth RCE. Replace with zero-trust + IAP wherever it fits.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 11 — SUPPLY CHAIN -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">10</span><h2>Supply Chain Security — SBOM, SLSA, Sigstore</h2></div>
+  <p>Most cloud workloads ship with hundreds of third-party dependencies. The supply chain is now an attack vector — Codecov 2021, SolarWinds 2020, npm <code>colors</code>/<code>faker</code> 2022, xz utils 2024, every <code>typosquatted-pypi</code> incident.</p>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card amber">
+        <h3 class="a">SBOM — Software Bill of Materials</h3>
+        <ul>
+          <li>Machine-readable list of every dependency &amp; version in your build</li>
+          <li>Formats: <span class="g">SPDX</span> (Linux Foundation) and <span class="g">CycloneDX</span> (OWASP)</li>
+          <li>Generated by Syft, Trivy, Grype, GitHub Dependency Graph</li>
+          <li>US Executive Order 14028 (2021) requires it for federal vendors</li>
+        </ul>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">SLSA — provenance for builds</h3>
+        <ul>
+          <li>4-level framework, levels 1–4</li>
+          <li><span class="a">L1</span> — build is scripted &amp; documented</li>
+          <li><span class="a">L2</span> — build runs on a hosted service, provenance signed</li>
+          <li><span class="a">L3</span> — provenance non-falsifiable; isolated build (GitHub Actions reusable workflows hit L3)</li>
+          <li><span class="a">L4</span> — two-person review of builds; rare</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">Sigstore — sign without keys</h3>
+        <ul>
+          <li><span class="a">Cosign</span> + <span class="a">Fulcio</span> (CA) + <span class="a">Rekor</span> (transparency log)</li>
+          <li>OIDC-backed signing — your identity is your key</li>
+          <li><code>cosign sign $IMAGE</code> on push; <code>cosign verify</code> on deploy</li>
+          <li>Default for Kubernetes, Helm, Python, npm-via-Sigstore</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">Practical pipeline</h3>
+<pre><code># In CI:
+syft  packages dir:. -o spdx-json &gt; sbom.json
+trivy fs --severity HIGH,CRITICAL --exit-code 1 .
+cosign sign $IMAGE
+cosign attach sbom --sbom sbom.json $IMAGE
+
+# At deploy admission (Kyverno / OPA):
+verify $IMAGE is signed by *.@yourcompany.com
+verify $IMAGE has SBOM attached
+verify $IMAGE has no CRITICAL CVE in last 24h</code></pre>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">The dependency-confusion attacks</h3>
+        <p>Internal package "<code>acme-utils</code>" lives in your private registry. Attacker publishes "<code>acme-utils</code>" 99.9.9 to npmjs.com. <code>npm install</code> picks the higher version. Mitigation: scoped names (@acme/utils), private-only resolution, package-lock pinning, Verdaccio or ProGet pull-through.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 12 — CONTAINER SECURITY -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">11</span><h2>Container &amp; Image Security</h2></div>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card amber">
+        <h3 class="a">Image-side</h3>
+        <ul>
+          <li>Distroless / Alpine / scratch as base — fewer CVEs, smaller surface</li>
+          <li>Multi-stage build (see <a href="https://github.com/BrendanJamesLynskey/Docker_Multi_Stage_Builds">Docker Multi-Stage Builds deck</a>)</li>
+          <li>Scan in CI — Trivy, Grype, Snyk, Wiz, Prisma, Twistlock</li>
+          <li>Scan in registry — ECR / Artifact Registry / ACR built-in</li>
+          <li>Sign with Cosign; admission rejects unsigned</li>
+          <li>SBOM attached; updated nightly</li>
+        </ul>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">Runtime-side</h3>
+        <ul>
+          <li>Non-root user (<code>USER 10001</code>)</li>
+          <li>Read-only root filesystem (<code>readOnlyRootFilesystem: true</code>)</li>
+          <li>Drop all capabilities, add back only what's needed</li>
+          <li>seccomp + AppArmor / SELinux profiles</li>
+          <li>Falco / Tetragon (eBPF) — detect anomalous syscall behaviour at runtime</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">Beyond Docker — micro-VM isolation</h3>
+        <ul>
+          <li><span class="a">Firecracker</span> — Lambda, Fargate, Fly Machines; true VM boundary, ~125ms boot</li>
+          <li><span class="a">gVisor</span> — Google sandbox, intercepts syscalls in user space</li>
+          <li><span class="a">Kata Containers</span> — VM-per-pod for K8s</li>
+          <li>Used when "container escape" is in the threat model — multi-tenant runtimes (Cloud Run), CI runners, untrusted code execution</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">Admission policy</h3>
+<pre><code># Kyverno - reject privileged pods
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privileged
+spec:
+  validationFailureAction: Enforce
+  rules:
+    - name: privileged
+      match: { any: [ { resources: { kinds: [Pod] } } ] }
+      validate:
+        message: "privileged pods are not allowed"
+        pattern:
+          spec:
+            =(securityContext):
+              =(privileged): "false"
+            containers:
+              - =(securityContext):
+                  =(privileged): "false"</code></pre>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Companion deck</h3>
+        <p>The <a href="https://github.com/BrendanJamesLynskey/Docker_Security">Docker Security</a> deck covers the container-image side end-to-end. This deck adds the cloud-native pieces (signing, admission, runtime protection).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 13 — COMPLIANCE FRAMEWORKS -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">12</span><h2>Compliance — The Major Frameworks</h2></div>
+
+  <table style="font-size:.5em;">
+    <thead><tr><th>Framework</th><th>Scope</th><th>What it certifies</th><th>Audit cadence</th></tr></thead>
+    <tbody>
+      <tr><td><span class="a">SOC 2 Type II</span> (AICPA)</td><td>Service organisations</td><td>Operating effectiveness of controls over a period (typ. 6–12 mo)</td><td>Annual</td></tr>
+      <tr><td><span class="a">ISO/IEC 27001</span></td><td>Information security mgmt</td><td>You have an ISMS; recertification every 3 yrs</td><td>3 yr cycle, annual surveillance</td></tr>
+      <tr><td><span class="a">ISO/IEC 27017 / 27018</span></td><td>Cloud-specific add-ons to 27001</td><td>Cloud security &amp; PII in cloud</td><td>same as 27001</td></tr>
+      <tr><td><span class="a">HIPAA / HITECH</span> (US health)</td><td>Protected Health Information</td><td>Self-attestation + BAA chain</td><td>continuous; OCR investigates breaches</td></tr>
+      <tr><td><span class="a">GDPR</span> (EU) + <span class="a">UK DPA 2018</span></td><td>Personal data</td><td>Self-assessment; supervisory authority enforces</td><td>continuous</td></tr>
+      <tr><td><span class="a">PCI DSS v4</span></td><td>Card data</td><td>Compliance against 12 control areas</td><td>annual</td></tr>
+      <tr><td><span class="a">FedRAMP</span> (US)</td><td>Federal procurement</td><td>Moderate / High / Tailored authorisation</td><td>continuous monitoring</td></tr>
+      <tr><td><span class="a">CCPA / CPRA</span> (California)</td><td>Consumer data</td><td>Self; AG enforces</td><td>continuous</td></tr>
+      <tr><td><span class="a">EU AI Act</span></td><td>High-risk AI</td><td>Risk classification, transparency, conformity assessment</td><td>phased through 2027</td></tr>
+      <tr><td><span class="a">DORA</span> (EU finance)</td><td>Operational resilience</td><td>ICT risk, third-party (cloud) risk</td><td>since Jan 2025</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cols cols-2" style="margin-top:0.3em;">
+    <div class="card amber">
+      <h3 class="a">Compliance automation tools</h3>
+      <p><span class="g">Vanta</span> · <span class="g">Drata</span> · <span class="g">Secureframe</span> · <span class="g">Sprinto</span> · <span class="g">Anecdotes</span> · <span class="g">Tugboat Logic</span>. They ingest from cloud / IdP / GitHub / HRIS, map to controls, generate evidence. SOC 2 in 4–6 months instead of 12+.</p>
+    </div>
+    <div class="card green">
+      <h3 class="g">CSPM / CNAPP</h3>
+      <p><span class="a">Wiz</span> · <span class="a">Orca</span> · <span class="a">Lacework (Fortinet)</span> · <span class="a">Prisma Cloud</span> · <span class="a">Tenable Cloud Security</span> · <span class="a">CrowdStrike Falcon Cloud Security</span>. Continuous configuration scanning, attack-path analysis, IAM analysis. Increasingly merged into "Cloud Native Application Protection Platforms".</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- 14 — DETECTION / SIEM -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">13</span><h2>Detection &amp; Response — SIEM, GuardDuty, Security Hub</h2></div>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card amber">
+        <h3 class="a">Cloud-native detection</h3>
+        <ul>
+          <li><span class="g">AWS GuardDuty</span> — DNS / VPC flow / CloudTrail anomaly detection; ML-driven</li>
+          <li><span class="g">GCP Security Command Center</span> — equivalent</li>
+          <li><span class="g">Microsoft Defender for Cloud</span> — equivalent</li>
+          <li><span class="g">CloudTrail / Cloud Audit Logs / Activity Log</span> — the source-of-truth event stream</li>
+          <li><span class="g">Network Firewall / Cloud NGFW / Azure Firewall</span> — IDS/IPS at the VPC edge</li>
+        </ul>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">SIEM platforms</h3>
+        <ul>
+          <li><span class="a">Splunk</span> — the historic standard</li>
+          <li><span class="a">Microsoft Sentinel</span> — cloud-native, often packaged with E5</li>
+          <li><span class="a">Datadog Cloud SIEM</span> — if already on Datadog</li>
+          <li><span class="a">Elastic Security</span> — OSS-rooted</li>
+          <li><span class="a">Panther</span> · <span class="a">SnapAttack</span> · <span class="a">Anvilogic</span> — modern detection-as-code platforms</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">Detection-as-code</h3>
+        <ul>
+          <li>Detection rules in Python / YAML, version-controlled</li>
+          <li>Same lifecycle as application code: PR review, test fixtures, CI</li>
+          <li>Sigma rules — vendor-neutral detection format</li>
+          <li>MITRE ATT&amp;CK mapping per rule</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">Response automation (SOAR)</h3>
+        <ul>
+          <li>Tines, Torq, Splunk SOAR, Cortex XSOAR — orchestrate response runbooks</li>
+          <li>Common play: "AccessKey appears on GitHub" → quarantine key → notify owner → rotate</li>
+          <li>"Suspicious AssumeRole from new country" → step-up MFA</li>
+        </ul>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Don't ship every log</h3>
+        <p>SIEM is priced per-GB ingested; CloudWatch Logs at $0.50/GB; Datadog logs at $1.27/GB indexed. Tier — sample app logs, full ingest of audit + IAM + DNS. Otherwise the bill is the security incident.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 15 — REAL INCIDENTS -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">14</span><h2>Real Incidents — What They Tell Us</h2></div>
+
+  <div class="cols cols-2">
+    <div>
+      <div class="card red">
+        <h3 class="r">Capital One (2019)</h3>
+        <p>SSRF in a misconfigured WAF allowed access to EC2 metadata service → <code>STS</code> credentials → S3 buckets → 100M records. <span class="a">Fix:</span> IMDSv2 (mandatory, hop-limit-bound), tight IAM scopes, VPC endpoint restrictions.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">SolarWinds (2020)</h3>
+        <p>Compromised build of Orion shipped to 18,000 customers including US Treasury. <span class="a">Fix:</span> SLSA L3+, signed builds, reproducible builds, two-person build promotion.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Codecov (2021)</h3>
+        <p>Bash uploader script modified in S3; exfiltrated CI secrets for months. <span class="a">Fix:</span> short-lived tokens (OIDC) instead of static; signed scripts.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Okta support breach (2023)</h3>
+        <p>HAR files uploaded to Okta support contained session cookies, used to compromise Okta customers. <span class="a">Fix:</span> sanitised HAR uploads, customer-side session-binding (DPoP / mTLS).</p>
+      </div>
+    </div>
+    <div>
+      <div class="card red">
+        <h3 class="r">MOVEit (2023)</h3>
+        <p>Cl0p exploited zero-day in Progress MOVEit Transfer; ~2,700 organisations breached; tens of millions of records. <span class="a">Fix:</span> third-party-software risk, network egress restriction, asset inventory of every internet-facing service.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Snowflake credential theft (2024)</h3>
+        <p>Stealer-malware-collected creds reused on ~100 Snowflake customer accounts (no MFA enforced) → Ticketmaster, Santander, AT&amp;T. <span class="a">Fix:</span> MFA mandatory by default; provider-wide auth-policy enforcement.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">XZ Utils backdoor (2024)</h3>
+        <p>Multi-year social-engineering of an OSS maintainer slipped a backdoor into <code>liblzma</code>, almost making it into Debian/Fedora SSH. <span class="a">Fix:</span> reproducible builds, multiple maintainers, sandboxed builders.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Microsoft / Storm-0558 (2023)</h3>
+        <p>Stolen MSA signing key was usable for Azure AD tokens because of a validation bug. <span class="a">Fix:</span> defence in depth at token validation; key isolation; audit-log surface for cross-tenant access.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 16 — ANTIPATTERNS -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">15</span><h2>Anti-Patterns</h2></div>
+
+  <div class="cols cols-2">
+    <div>
+      <div class="card red">
+        <h3 class="r">"<code>0.0.0.0/0</code> on port 22 / 3389 / 3306 just for now"</h3>
+        <p>Will be brute-forced inside an hour. SSM / IAP / Tailscale instead. <em>No public DB ports, ever.</em></p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">"MFA optional"</h3>
+        <p>The Snowflake breach class — millions of credentials harvested by stealer malware, replayed on accounts without MFA. Make it mandatory at the IdP.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">"Static keys committed to a private repo, it's fine"</h3>
+        <p>Private becomes public on the first contractor offboard, fork, or SSO misconfiguration. GitGuardian / TruffleHog / Gitleaks scan; OIDC instead.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">"Disable encryption for cost / perf"</h3>
+        <p>Encryption-at-rest with provider-managed keys is free and adds &lt; 1% perf overhead. Keep it on.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card red">
+        <h3 class="r">"CloudTrail off in dev"</h3>
+        <p>Dev breaks first; you need the logs more there than in prod. Org-wide CloudTrail / Cloud Audit / Diagnostic Settings, no opt-out.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">"Wildcard IAM permissions"</h3>
+        <p><code>"Action":"*","Resource":"*"</code> on a workload's role. Use Access Analyser, narrow on the next sprint.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">"Compliance is a Vanta dashboard"</h3>
+        <p>Auto-evidence is a productivity gain, not a strategy. The auditor still wants real controls; the customer still wants security, not green checkmarks.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">"Security review at end of sprint"</h3>
+        <p>Shift left. Threat model in design; SAST in CI; admission policies; pen test annually; bug bounty as the safety net.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 17 — SUMMARY -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">16</span><h2>Summary</h2></div>
+
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3 class="a">Three takeaways</h3>
+        <ol style="padding-left:1.2em;">
+          <li>The cloud secures the substrate; you secure everything you build on it. Most breaches are still customer-side IAM / config.</li>
+          <li>Identity is the perimeter — short-lived tokens, federation, MFA mandatory, least privilege a habit.</li>
+          <li>Compliance is process, not magic. Tooling speeds it up; it does not replace the controls.</li>
+        </ol>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">Next in series</h3>
+        <ul>
+          <li><span class="a">06</span> LLM-as-a-Service — and the new security shapes that come with it</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">Companion decks</h3>
+        <ul>
+          <li><a href="https://github.com/BrendanJamesLynskey/Docker_Security">Docker Security</a> — the container-image layer</li>
+          <li><a href="https://github.com/BrendanJamesLynskey/Introduction_to_OAuth">Introduction to OAuth</a> — delegated authorisation</li>
+          <li><a href="https://github.com/BrendanJamesLynskey/Introduction_to_Web_Authentication">Web Authentication</a> — sessions, JWTs, MFA</li>
+          <li><a href="https://github.com/BrendanJamesLynskey/Introduction_to_CI_CD">CI/CD</a> — secure pipelines</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">One sentence</h3>
+        <p>"<em>Cloud security is identity, secrets, network and supply-chain — applied with discipline, audited continuously, and revisited the day after every incident report.</em>"</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script>
+Reveal.initialize({hash:true,slideNumber:'c/t',transition:'fade',transitionSpeed:'fast',
+  controls:true,progress:true,center:false,width:1100,height:900,margin:0.01,
+  plugins:[RevealHighlight],highlight:{theme:'monokai'}});
+</script>
+<script>
+(function(){var h=Reveal.getConfig().height||900,m=Reveal.getConfig().margin||0.02;
+  var maxH=Math.floor(h*(1-2*m))+'px';
+  function fixSlides(){document.querySelectorAll('.reveal .slides>section,.reveal .slides>section>section').forEach(function(s){s.style.display='block';s.style.maxHeight=maxH;});}
+  Reveal.on('ready',fixSlides);Reveal.on('slidechanged',fixSlides);})();
+</script>
+</body>
+</html>
