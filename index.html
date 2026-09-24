@@ -8,10 +8,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css">
 <style>
-  :root{--amber:#f5a623;--green:#4ecb8d;--purple:#a78bfa;--blue:#60a5fa;--red:#f87171;
-    --bg:#0a0a0f;--bg2:#10101a;--bg3:#181824;--border:#2a2a3a;--text:#e8e8f0;--muted:#8888a8;}
+  :root{--amber:#af7e0f;--green:#217566;--purple:#4e4392;--blue:#204d89;--red:#bb2233;
+    --bg:#eaeff2;--bg2:#e1e8ec;--bg3:#d9e1e6;--border:#b9c7d0;--text:#14273b;--muted:#5c6e7b;}
   .reveal-viewport{background:var(--bg);} .reveal .slides section{background:transparent;}
   .reveal{font-family:'DM Sans',sans-serif;color:var(--text);}
   .reveal h1,.reveal h2,.reveal h3{font-family:'Playfair Display',serif;font-weight:700;}
@@ -23,7 +23,7 @@
   .reveal code{font-family:'JetBrains Mono',monospace;font-size:.72em;}
   .reveal pre{box-shadow:none;background:var(--bg3);border:1px solid var(--border);
     border-radius:6px;padding:.3em .5em;margin:.25em 0;}
-  .reveal pre code{font-size:.52em;line-height:1.35;background:transparent;color:#cdd6f4;}
+  .reveal pre code{font-size:.52em;line-height:1.35;background:transparent;color:#213343;}
   .slide-hdr{display:flex;align-items:center;gap:.4em;border-bottom:1px solid var(--border);
     padding-bottom:.2em;margin-bottom:.3em;}
   .slide-hdr .tag{font-family:'JetBrains Mono',monospace;font-size:.42em;font-weight:500;
@@ -36,13 +36,13 @@
   .card.amber{border-left:3px solid var(--amber);} .card.green{border-left:3px solid var(--green);}
   .card.purple{border-left:3px solid var(--purple);} .card.blue{border-left:3px solid var(--blue);}
   .card.red{border-left:3px solid var(--red);}
-  .card h3{font-size:.64em;margin:0 0 .12em;} .card p{font-size:.52em;margin:0;color:#b8b8d0;}
-  .card ul{margin:0;padding-left:1em;} .card li{font-size:.52em;color:#b8b8d0;margin-bottom:.02em;}
+  .card h3{font-size:.64em;margin:0 0 .12em;} .card p{font-size:.52em;margin:0;color:#354552;}
+  .card ul{margin:0;padding-left:1em;} .card li{font-size:.52em;color:#354552;margin-bottom:.02em;}
   .reveal table{width:100%;border-collapse:collapse;font-size:.5em;}
   .reveal table th{background:var(--bg3);color:var(--amber);font-weight:600;
     padding:.2em .4em;border:1px solid var(--border);text-align:left;}
-  .reveal table td{padding:.18em .4em;border:1px solid var(--border);color:#ccc;}
-  .reveal table tr:nth-child(even) td{background:#0e0e18;}
+  .reveal table td{padding:.18em .4em;border:1px solid var(--border);color:#283948;}
+  .reveal table tr:nth-child(even) td{background:#e3eaee;}
   .a{color:var(--amber);font-weight:600;} .g{color:var(--green);font-weight:600;}
   .p{color:var(--purple);font-weight:600;} .b{color:var(--blue);font-weight:600;}
   .r{color:var(--red);font-weight:600;} .mono{font-family:'JetBrains Mono',monospace;}
@@ -62,13 +62,14 @@
     font-family:'JetBrains Mono',monospace;flex-wrap:wrap;}
   .ss-node{padding:.2em .55em;border-radius:5px;font-size:.9em;
     background:var(--bg3);border:1px solid var(--border);color:var(--text);}
-  .ss-node.active{background:#1a2a1a;border-color:var(--green);color:var(--green);}
-  .ss-node.done{background:#1a1a2a;border-color:var(--purple);color:var(--purple);}
+  .ss-node.active{background:#c4d4d1;border-color:var(--green);color:var(--green);}
+  .ss-node.done{background:#d4dde4;border-color:var(--purple);color:var(--purple);}
   .ss-arrow{color:var(--amber);} .ss-label{font-size:.8em;color:var(--muted);margin-left:.3em;}
   .reveal ul,.reveal ol{margin:.15em 0 .15em 1em;}
   .reveal .slides>section{display:flex!important;flex-direction:column!important;
     overflow-y:auto!important;align-items:stretch!important;justify-content:flex-start!important;}
 </style>
+<style>.reveal .slide-number{background-color:transparent}</style>
 </head>
 <body>
 <div class="reveal">
@@ -76,7 +77,7 @@
 
 
 <!-- 01 — TITLE -->
-<section class="title-slide" data-background-color="#0a0a0f">
+<section class="title-slide" data-background-color="#eaeff2">
   <div style="text-align:left; max-width:820px; margin:0 auto; padding: 1em 0;">
     <div style="font-family:'JetBrains Mono',monospace; font-size:.5em; color:var(--muted); margin-bottom:.4em; letter-spacing:.1em;">
       CLOUD SERVICE MODELS &middot; PART 5 OF 6
@@ -102,7 +103,7 @@
       <span class="ss-arrow">→</span>
       <span class="ss-node done">📜 Audit</span>
     </div>
-    <p style="max-width:640px; color:#a0a0c0; font-size:.56em; line-height:1.5; margin-top:1em;">
+    <p style="max-width:640px; color:#475865; font-size:.56em; line-height:1.5; margin-top:1em;">
       The cross-cutting security disciplines for *aaS — what the cloud gives you, what it doesn't, and how the past decade's incidents shape the controls you actually need.
     </p>
     <div class="meta" style="margin-top:1.4em;">
@@ -113,7 +114,7 @@
 
 
 <!-- 02 — TOPICS -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">01</span><h2>Topics</h2></div>
   <div class="cols cols-2">
     <div>
@@ -161,7 +162,7 @@
 
 
 <!-- 03 — SHARED RESPONSIBILITY DEEP DIVE -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">02</span><h2>Shared Responsibility — In Detail</h2></div>
   <p>The cloud secures the <em>infrastructure</em>; you secure <em>everything you run on it</em>. Where the line falls depends on the *aaS layer (deck 01) — but in every model, four things are always yours.</p>
 
@@ -209,39 +210,39 @@
 
 
 <!-- 04 — IAM CORE -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">03</span><h2>IAM — Identity, Roles, Policies, STS</h2></div>
 
   <svg class="diagram" viewBox="0 0 1000 240" width="940" height="240">
-    <defs><marker id="m04" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#888"/></marker></defs>
+    <defs><marker id="m04" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#60717e"/></marker></defs>
 
-    <rect x="20"  y="60" width="200" height="60" rx="6" fill="#1a1a2a" stroke="#60a5fa" stroke-width="1.5"/>
-    <text x="120" y="85" text-anchor="middle" fill="#60a5fa" font-family="Playfair Display,serif" font-size="14" font-weight="700">Principal</text>
-    <text x="120" y="105" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">user · role · workload</text>
+    <rect x="20"  y="60" width="200" height="60" rx="6" fill="#d4dde4" stroke="#204d89" stroke-width="1.5"/>
+    <text x="120" y="85" text-anchor="middle" fill="#204d89" font-family="Playfair Display,serif" font-size="14" font-weight="700">Principal</text>
+    <text x="120" y="105" text-anchor="middle" fill="#283948" font-family="JetBrains Mono,monospace" font-size="9">user · role · workload</text>
 
-    <rect x="280" y="60" width="200" height="60" rx="6" fill="#1a1a2a" stroke="#f5a623" stroke-width="1.5"/>
-    <text x="380" y="85" text-anchor="middle" fill="#f5a623" font-family="Playfair Display,serif" font-size="14" font-weight="700">STS</text>
-    <text x="380" y="105" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">issues short-lived credentials</text>
+    <rect x="280" y="60" width="200" height="60" rx="6" fill="#d4dde4" stroke="#af7e0f" stroke-width="1.5"/>
+    <text x="380" y="85" text-anchor="middle" fill="#af7e0f" font-family="Playfair Display,serif" font-size="14" font-weight="700">STS</text>
+    <text x="380" y="105" text-anchor="middle" fill="#283948" font-family="JetBrains Mono,monospace" font-size="9">issues short-lived credentials</text>
 
-    <rect x="540" y="60" width="200" height="60" rx="6" fill="#1a1a2a" stroke="#a78bfa" stroke-width="1.5"/>
-    <text x="640" y="85" text-anchor="middle" fill="#a78bfa" font-family="Playfair Display,serif" font-size="14" font-weight="700">Policy evaluator</text>
-    <text x="640" y="105" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">SCP · resource · identity policies</text>
+    <rect x="540" y="60" width="200" height="60" rx="6" fill="#d4dde4" stroke="#4e4392" stroke-width="1.5"/>
+    <text x="640" y="85" text-anchor="middle" fill="#4e4392" font-family="Playfair Display,serif" font-size="14" font-weight="700">Policy evaluator</text>
+    <text x="640" y="105" text-anchor="middle" fill="#283948" font-family="JetBrains Mono,monospace" font-size="9">SCP · resource · identity policies</text>
 
-    <rect x="800" y="60" width="180" height="60" rx="6" fill="#1a1a2a" stroke="#4ecb8d" stroke-width="1.5"/>
-    <text x="890" y="85" text-anchor="middle" fill="#4ecb8d" font-family="Playfair Display,serif" font-size="14" font-weight="700">Resource</text>
-    <text x="890" y="105" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">S3 / RDS / Bedrock / …</text>
+    <rect x="800" y="60" width="180" height="60" rx="6" fill="#d4dde4" stroke="#217566" stroke-width="1.5"/>
+    <text x="890" y="85" text-anchor="middle" fill="#217566" font-family="Playfair Display,serif" font-size="14" font-weight="700">Resource</text>
+    <text x="890" y="105" text-anchor="middle" fill="#283948" font-family="JetBrains Mono,monospace" font-size="9">S3 / RDS / Bedrock / …</text>
 
-    <line x1="220" y1="90" x2="280" y2="90" stroke="#888" stroke-width="1.2" marker-end="url(#m04)"/>
-    <text x="250" y="80" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">AssumeRole</text>
+    <line x1="220" y1="90" x2="280" y2="90" stroke="#60717e" stroke-width="1.2" marker-end="url(#m04)"/>
+    <text x="250" y="80" text-anchor="middle" fill="#60717e" font-family="JetBrains Mono,monospace" font-size="9">AssumeRole</text>
 
-    <line x1="480" y1="90" x2="540" y2="90" stroke="#888" stroke-width="1.2" marker-end="url(#m04)"/>
-    <text x="510" y="80" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">creds</text>
+    <line x1="480" y1="90" x2="540" y2="90" stroke="#60717e" stroke-width="1.2" marker-end="url(#m04)"/>
+    <text x="510" y="80" text-anchor="middle" fill="#60717e" font-family="JetBrains Mono,monospace" font-size="9">creds</text>
 
-    <line x1="740" y1="90" x2="800" y2="90" stroke="#888" stroke-width="1.2" marker-end="url(#m04)"/>
-    <text x="770" y="80" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">Allow / Deny</text>
+    <line x1="740" y1="90" x2="800" y2="90" stroke="#60717e" stroke-width="1.2" marker-end="url(#m04)"/>
+    <text x="770" y="80" text-anchor="middle" fill="#60717e" font-family="JetBrains Mono,monospace" font-size="9">Allow / Deny</text>
 
-    <text x="500" y="165" text-anchor="middle" fill="#888" font-family="DM Sans,sans-serif" font-size="11">Every API call is an authenticated, authorised, logged transaction. The four IAM controls — SCP, identity, resource, permission boundary — combine in a deny-wins evaluator.</text>
-    <text x="500" y="195" text-anchor="middle" fill="#a0a0c0" font-family="JetBrains Mono,monospace" font-size="10">explicit deny → deny | explicit allow → check boundaries → allow | otherwise → deny</text>
+    <text x="500" y="165" text-anchor="middle" fill="#60717e" font-family="DM Sans,sans-serif" font-size="11">Every API call is an authenticated, authorised, logged transaction. The four IAM controls — SCP, identity, resource, permission boundary — combine in a deny-wins evaluator.</text>
+    <text x="500" y="195" text-anchor="middle" fill="#475865" font-family="JetBrains Mono,monospace" font-size="10">explicit deny → deny | explicit allow → check boundaries → allow | otherwise → deny</text>
   </svg>
 
   <div class="cols cols-3" style="margin-top:0.2em;">
@@ -262,7 +263,7 @@
 
 
 <!-- 05 — STS / FEDERATION -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">04</span><h2>STS &amp; Federation — No Long-Lived Keys</h2></div>
   <p>Long-lived <code>AKIA…</code>/<code>JSON-key</code>/<code>service-principal-secret</code> credentials are the thing leaked into GitHub at 03:00 every day. Replace them everywhere with short-lived tokens minted on demand.</p>
 
@@ -321,7 +322,7 @@
 
 
 <!-- 06 — LEAST PRIVILEGE -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">05</span><h2>Least Privilege — In Practice</h2></div>
   <p>"Least privilege" is the principle that every identity gets <em>only</em> the permissions it needs. Easy to say; in real cloud accounts most policies have grown to <code>"*:*"</code> by Tuesday.</p>
 
@@ -376,7 +377,7 @@
 
 
 <!-- 07 — SECRETS -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">06</span><h2>Secrets — KMS / HSM / Secrets Manager / Vault</h2></div>
 
   <table style="margin-top:.3em;">
@@ -417,7 +418,7 @@ store(ciphertext, encrypted_DEK)</code></pre>
 
 
 <!-- 08 — ENCRYPTION -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">07</span><h2>Encryption — At Rest, In Transit, In Use</h2></div>
 
   <div class="cols cols-2" style="margin-top:0.4em;">
@@ -472,7 +473,7 @@ store(ciphertext, encrypted_DEK)</code></pre>
 
 
 <!-- 09 — NETWORK SECURITY -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">08</span><h2>Network Security — Beyond the VPC</h2></div>
 
   <div class="cols cols-2" style="margin-top:0.4em;">
@@ -524,7 +525,7 @@ store(ciphertext, encrypted_DEK)</code></pre>
 
 
 <!-- 10 — ZERO TRUST -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">09</span><h2>Zero Trust — The Replacement for the VPN</h2></div>
   <p>"Never trust, always verify." Replaces the corporate VPN as the only thing between trusted users and crown-jewel data.</p>
 
@@ -580,7 +581,7 @@ store(ciphertext, encrypted_DEK)</code></pre>
 
 
 <!-- 11 — SUPPLY CHAIN -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">10</span><h2>Supply Chain Security — SBOM, SLSA, Sigstore</h2></div>
   <p>Most cloud workloads ship with hundreds of third-party dependencies. The supply chain is now an attack vector — Codecov 2021, SolarWinds 2020, npm <code>colors</code>/<code>faker</code> 2022, xz utils 2024, every <code>typosquatted-pypi</code> incident.</p>
 
@@ -639,7 +640,7 @@ verify $IMAGE has no CRITICAL CVE in last 24h</code></pre>
 
 
 <!-- 12 — CONTAINER SECURITY -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">11</span><h2>Container &amp; Image Security</h2></div>
 
   <div class="cols cols-2" style="margin-top:0.4em;">
@@ -708,7 +709,7 @@ spec:
 
 
 <!-- 13 — COMPLIANCE FRAMEWORKS -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">12</span><h2>Compliance — The Major Frameworks</h2></div>
 
   <table style="font-size:.5em;">
@@ -741,7 +742,7 @@ spec:
 
 
 <!-- 14 — DETECTION / SIEM -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">13</span><h2>Detection &amp; Response — SIEM, GuardDuty, Security Hub</h2></div>
 
   <div class="cols cols-2" style="margin-top:0.4em;">
@@ -795,7 +796,7 @@ spec:
 
 
 <!-- 15 — REAL INCIDENTS -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">14</span><h2>Real Incidents — What They Tell Us</h2></div>
 
   <div class="cols cols-2">
@@ -840,7 +841,7 @@ spec:
 
 
 <!-- 16 — ANTIPATTERNS -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">15</span><h2>Anti-Patterns</h2></div>
 
   <div class="cols cols-2">
@@ -885,7 +886,7 @@ spec:
 
 
 <!-- 17 — SUMMARY -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#eaeff2">
   <div class="slide-hdr"><span class="tag">16</span><h2>Summary</h2></div>
 
   <div class="cols cols-2">
